@@ -8,13 +8,39 @@
 <link rel="preload" as="image" href="IMG_7324.JPG">
 
 <!-- Microsoft Clarity: Heatmaps und Sitzungsaufzeichnungen.
-     Auswertung unter clarity.microsoft.com, Projekt yg39ppuenz. -->
-<script type="text/javascript">
-    (function(c,l,a,r,i,t,y){
-        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
-        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
-        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
-    })(window, document, "clarity", "script", "yg39ppuenz");
+     Auswertung unter clarity.microsoft.com, Projekt yg39ppuenz.
+     Wird erst nach Einwilligung geladen — vorher keine Cookies, keine
+     Verbindung zu Microsoft. Das Banner steuert das Script am Ende der Seite. -->
+<script>
+  (function () {
+    var KEY = "maxino-einwilligung";   // Wert: "granted" oder "denied"
+
+    function loadClarity() {
+      if (window.clarity) return;
+
+      (function(c,l,a,r,i,t,y){
+          c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+          t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+          y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+      })(window, document, "clarity", "script", "yg39ppuenz");
+
+      // Einwilligungssignal an Clarity (Pflicht für Besucher aus der EU)
+      window.clarity("consentv2", { ad_Storage: "denied", analytics_Storage: "granted" });
+    }
+
+    window.maxinoConsent = {
+      get: function () {
+        try { return localStorage.getItem(KEY); } catch (e) { return null; }
+      },
+      set: function (value) {
+        try { localStorage.setItem(KEY, value); } catch (e) {}
+      },
+      loadClarity: loadClarity
+    };
+
+    // wiederkehrende Besucher mit Einwilligung: sofort laden
+    if (window.maxinoConsent.get() === "granted") loadClarity();
+  })();
 </script>
 
 <style>
@@ -698,6 +724,27 @@
 
   footer .copy { font-size: 12px; color: var(--gray); }
 
+  footer .foot-left {
+    display: flex;
+    align-items: baseline;
+    gap: 8px 18px;
+    flex-wrap: wrap;
+  }
+
+  /* Rechtliches: Links und Cookie-Button sehen gleich aus */
+  footer .foot-legal {
+    font: inherit;
+    font-size: 12px;
+    color: var(--gray);
+    background: none;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    transition: color var(--mid) var(--ease);
+  }
+
+  footer .foot-legal:hover { color: var(--ink); }
+
   footer a.insta {
     font-size: 12px;
     letter-spacing: 0.06em;
@@ -708,6 +755,109 @@
   }
 
   footer a.insta:hover { opacity: 0.5; }
+
+  /* ---------- 11a Einwilligung (Cookie-Leiste) ---------- */
+
+  .consent {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 70;
+    background: rgba(255, 255, 255, 0.97);
+    border-top: 1px solid var(--line);
+    padding: 20px var(--pad);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--gap-s) var(--gap-m);
+    opacity: 0;
+    transform: translate3d(0, 12px, 0);
+    transition: opacity var(--mid) var(--ease), transform var(--mid) var(--ease);
+  }
+
+  .consent[hidden] { display: none; }
+
+  .consent.is-open { opacity: 1; transform: none; }
+
+  .consent p {
+    margin: 0;
+    max-width: 72ch;
+    font-size: 12.5px;
+    color: var(--gray);
+  }
+
+  .consent p a { color: var(--ink); border-bottom: 1px solid var(--line); }
+
+  /* der Spruch: gleiche Schrift, nur dunkler und etwas größer */
+  .consent .consent-line {
+    font-size: 15px;
+    font-weight: 500;
+    letter-spacing: -0.005em;
+    color: var(--ink);
+    margin-bottom: 6px;
+  }
+
+  .consent-actions {
+    display: flex;
+    gap: 22px;
+    flex-shrink: 0;
+  }
+
+  /* bewusst gleich gestaltet: Ablehnen ist so leicht wie Zustimmen */
+  .consent-btn {
+    background: none;
+    border: 0;
+    border-bottom: 1px solid var(--ink);
+    padding: 0 0 3px;
+    font: inherit;
+    font-size: 11.5px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--ink);
+    cursor: pointer;
+    transition: opacity var(--mid) var(--ease);
+  }
+
+  .consent-btn:hover { opacity: 0.5; }
+
+  @media (max-width: 700px) {
+    .consent { flex-direction: column; align-items: flex-start; }
+  }
+
+  /* ---------- 11b Rechtliches (Impressum, Datenschutz) ---------- */
+
+  .legal {
+    max-width: 68ch;
+    font-size: 14.5px;
+    color: var(--gray);
+  }
+
+  .legal h3 {
+    font-size: 16px;
+    font-weight: 500;
+    color: var(--ink);
+    letter-spacing: -0.005em;
+    margin: var(--gap-m) 0 10px;
+  }
+
+  .legal h3:first-child { margin-top: 0; }
+
+  .legal p,
+  .legal ul { margin: 0 0 14px; }
+
+  .legal ul { padding-left: 18px; }
+
+  .legal a { color: var(--ink); border-bottom: 1px solid var(--line); }
+
+  .legal address { font-style: normal; color: var(--ink); margin-bottom: 14px; }
+
+  /* Hervorhebung (z. B. Widerspruchsrecht): dunkler statt fett */
+  .legal strong { font-weight: 500; color: var(--ink); }
+
+  .legal code { font-size: 0.92em; color: var(--ink); }
+
+  .legal .stand { margin-top: var(--gap-m); font-size: 12px; }
 
   /* ---------- 12 Lightbox ---------- */
 
@@ -1190,12 +1340,181 @@
     </section>
   </article>
 
+  <!-- ============ IMPRESSUM ============
+       Pflichtangaben nach § 5 DDG: vollständiger Name, Straßenanschrift
+       (kein Postfach), E-Mail und — laut IHK — Telefonnummer.
+       Das Impressum muss leicht erkennbar und mit höchstens zwei Klicks
+       erreichbar bleiben (Footer-Link „Impressum“ nicht entfernen).
+       data-nosnippet: Google zeigt Adresse und Telefon nicht in Suchergebnissen. -->
+  <article class="view" id="view-impressum" data-view="impressum">
+    <section data-nosnippet>
+      <div class="section-head">
+        <h2>Impressum</h2>
+        <span class="index">Rechtliches</span>
+      </div>
+
+      <div class="legal">
+        <h3>Angaben gemäß § 5 DDG</h3>
+        <address>
+          Max Boeltl<br>
+          Radeberger Straße 9<br>
+          85609 Aschheim
+        </address>
+
+        <h3>Kontakt</h3>
+        <p>Telefon: <a href="tel:+4917621833581">0176 21833581</a><br>
+           E-Mail: <a href="mailto:artbymaxino@icloud.com">artbymaxino@icloud.com</a></p>
+        <!-- Falls vorhanden ergänzen (§ 5 Abs. 1 Nr. 6 DDG):
+             Umsatzsteuer-Identifikationsnummer nach § 27a UStG bzw.
+             Wirtschafts-Identifikationsnummer, sobald zugeteilt. -->
+
+        <h3>Links zu anderen Websites</h3>
+        <p>Diese Website verlinkt auf externe Seiten wie Instagram. Für deren Inhalte ist
+           ausschließlich der jeweilige Anbieter verantwortlich.</p>
+
+        <h3>Urheberrecht</h3>
+        <p>Die auf dieser Website gezeigten Werke und Texte sind urheberrechtlich geschützt.
+           Jede Verwendung außerhalb dieser Website bedarf der vorherigen Zustimmung.</p>
+      </div>
+    </section>
+  </article>
+
+  <!-- ============ DATENSCHUTZ ============ -->
+  <article class="view" id="view-datenschutz" data-view="datenschutz">
+    <section data-nosnippet>
+      <div class="section-head">
+        <h2>Datenschutz</h2>
+        <span class="index">Rechtliches</span>
+      </div>
+
+      <div class="legal">
+        <h3>1. Verantwortlicher</h3>
+        <p>Verantwortlich für die Datenverarbeitung auf dieser Website ist:</p>
+        <address>
+          Max Boeltl<br>
+          Radeberger Straße 9<br>
+          85609 Aschheim<br>
+          E-Mail: <a href="mailto:artbymaxino@icloud.com">artbymaxino@icloud.com</a>
+        </address>
+        <p>Einen Datenschutzbeauftragten gibt es nicht; er ist für diese Website nicht
+           vorgeschrieben.</p>
+
+        <h3>2. Hosting</h3>
+        <p>Diese Website wird über GitHub Pages bereitgestellt, einen Dienst der GitHub, Inc.,
+           88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, USA. Beim Aufruf der Seite
+           verarbeitet GitHub technisch notwendige Daten wie IP-Adresse, Datum und Uhrzeit,
+           aufgerufene Datei und Browserangaben, um die Seite auszuliefern. Die IP-Adresse
+           speichert GitHub nach eigenen Angaben zu Sicherheitszwecken; wie lange, legt GitHub
+           fest (siehe <a href="https://docs.github.com/privacy" target="_blank" rel="noopener">Datenschutzerklärung von GitHub</a>).</p>
+        <p>Rechtsgrundlage ist Art. 6 Abs. 1 lit. f DSGVO; mein berechtigtes Interesse liegt in
+           einer sicheren und zuverlässigen Bereitstellung der Website. Die Daten werden in die
+           USA übermittelt. GitHub ist nach dem EU-US Data Privacy Framework zertifiziert.</p>
+
+        <h3>3. Kontakt per E-Mail</h3>
+        <p>Wenn du mir schreibst, verarbeite ich deine Angaben — etwa Name, E-Mail-Adresse und
+           Inhalt der Nachricht —, um deine Anfrage zu beantworten. Rechtsgrundlage ist
+           Art. 6 Abs. 1 lit. b DSGVO, wenn es um den Kauf eines Werks oder einen Auftrag geht,
+           sonst Art. 6 Abs. 1 lit. f DSGVO; mein berechtigtes Interesse ist dann, deine
+           Anfrage zu beantworten.</p>
+        <p>Mein E-Mail-Postfach wird über iCloud Mail von Apple betrieben; deine Nachricht wird
+           daher auf Servern von Apple gespeichert. Ich lösche die Daten, sobald die Anfrage
+           erledigt ist und keine gesetzlichen Aufbewahrungspflichten (etwa für Rechnungen)
+           entgegenstehen.</p>
+
+        <h3>4. Besucherstatistik mit Microsoft Clarity</h3>
+        <p>Nur wenn du im Cookie-Hinweis zustimmst, nutze ich Microsoft Clarity, einen Dienst der
+           Microsoft Ireland Operations Limited, One Microsoft Place, South County Business Park,
+           Leopardstown, Dublin 18, Irland. Ohne deine Zustimmung wird Clarity gar nicht geladen.</p>
+        <p>Clarity erfasst, wie die Website genutzt wird — Klicks, Mausbewegungen, Scrollen und
+           aufgerufene Bereiche — und erstellt daraus Heatmaps und Aufzeichnungen einzelner
+           Besuche. Verarbeitet werden außerdem Angaben wie Gerätetyp, Browser, ungefährer
+           Standort und Zeitpunkt des Besuchs. Ich nutze das, um zu verstehen, wie Besucher
+           durch die Galerie gehen, und die Seite zu verbessern.</p>
+        <p>Dafür setzt Clarity auf dieser Website die Cookies <code>_clck</code> und
+           <code>_clsk</code>, die eine pseudonyme Kennung speichern und Seitenaufrufe zu einem
+           Besuch verbinden. Microsoft setzt zusätzlich eigene Cookies auf Microsoft-Domains
+           (etwa <code>MUID</code> und <code>CLID</code>). Die Website teilt Clarity ausdrücklich
+           mit, dass keine Speicherung zu Werbezwecken erlaubt ist.</p>
+        <p>Aufzeichnungen einzelner Besuche löscht Microsoft nach 30 Tagen, Klick- und
+           Heatmap-Daten nach 9 Monaten. Die Cookies bleiben bis zu ihrem Ablauf, bis du sie im
+           Browser löschst oder deine Einwilligung widerrufst. Die Daten können an die
+           Microsoft Corporation in den USA übermittelt werden; Microsoft ist nach dem EU-US
+           Data Privacy Framework zertifiziert.</p>
+        <p>Rechtsgrundlage ist deine Einwilligung (Art. 6 Abs. 1 lit. a DSGVO, § 25 Abs. 1 TDDDG).
+           Du kannst sie jederzeit über „Cookie-Einstellungen“ unten auf der Seite widerrufen;
+           Clarity wird dann beendet und seine Cookies auf dieser Website werden gelöscht.
+           Weitere Informationen in der
+           <a href="https://privacy.microsoft.com/de-de/privacystatement" target="_blank" rel="noopener">Datenschutzerklärung von Microsoft</a>.</p>
+
+        <h3>5. Speicherung deiner Cookie-Entscheidung</h3>
+        <p>Deine Entscheidung im Cookie-Hinweis wird im lokalen Speicher deines Browsers abgelegt,
+           damit du nicht bei jedem Besuch erneut gefragt wirst. Diese Speicherung ist technisch
+           erforderlich (§ 25 Abs. 2 Nr. 2 TDDDG), wird weder an mich noch an Dritte übertragen
+           und bleibt, bis du die Website-Daten in deinem Browser löschst.</p>
+
+        <h3>6. Instagram</h3>
+        <p>Der Verweis auf Instagram ist ein einfacher Link. Erst wenn du ihn anklickst, wirst du
+           zu Instagram weitergeleitet; dort gelten die Datenschutzbestimmungen der
+           Meta Platforms Ireland Limited.</p>
+
+        <h3>7. Pflicht zur Bereitstellung, automatisierte Entscheidungen</h3>
+        <p>Du bist weder gesetzlich noch vertraglich verpflichtet, mir Daten bereitzustellen.
+           Ohne die technischen Verbindungsdaten kann die Website allerdings nicht angezeigt
+           werden, und ohne Kontaktdaten kann ich dir nicht antworten. Eine automatisierte
+           Entscheidungsfindung oder ein Profiling nach Art. 22 DSGVO findet nicht statt.</p>
+
+        <h3>8. Deine Rechte</h3>
+        <ul>
+          <li>Auskunft über deine gespeicherten Daten (Art. 15 DSGVO)</li>
+          <li>Berichtigung und Löschung (Art. 16, 17 DSGVO)</li>
+          <li>Einschränkung der Verarbeitung (Art. 18 DSGVO)</li>
+          <li>Datenübertragbarkeit (Art. 20 DSGVO)</li>
+          <li>Widerruf einer Einwilligung mit Wirkung für die Zukunft (Art. 7 Abs. 3 DSGVO)</li>
+        </ul>
+        <p>Eine formlose E-Mail genügt. Außerdem kannst du dich bei einer
+           Datenschutz-Aufsichtsbehörde beschweren (Art. 77 DSGVO), zum Beispiel beim
+           Bayerischen Landesamt für Datenschutzaufsicht (BayLDA).</p>
+
+        <h3>9. Widerspruchsrecht</h3>
+        <p><strong>Soweit ich Daten auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO verarbeite
+           (Hosting, allgemeine Anfragen), kannst du dieser Verarbeitung aus Gründen, die sich
+           aus deiner besonderen Situation ergeben, jederzeit widersprechen (Art. 21 DSGVO).
+           Dann verarbeite ich deine Daten nicht mehr, es sei denn, es liegen zwingende
+           schutzwürdige Gründe vor oder die Verarbeitung dient der Geltendmachung, Ausübung
+           oder Verteidigung von Rechtsansprüchen.</strong></p>
+
+        <p class="stand">Stand: September 2026</p>
+      </div>
+    </section>
+  </article>
+
 </main>
 
 <footer>
-  <span class="copy">&copy; 2026 Maxino — Ölmalerei, München</span>
+  <div class="foot-left">
+    <span class="copy">&copy; 2026 Maxino — Ölmalerei, München</span>
+    <a class="foot-legal" href="#/impressum">Impressum</a>
+    <a class="foot-legal" href="#/datenschutz">Datenschutz</a>
+    <button class="foot-legal" type="button" id="consentOpen">Cookie-Einstellungen</button>
+  </div>
   <a class="insta" href="https://www.instagram.com/artbymaxino/" target="_blank" rel="noopener">Instagram ↗</a>
 </footer>
+
+<!-- Cookie-Einwilligung: erscheint beim ersten Besuch und über "Cookie-Einstellungen" -->
+<div class="consent" id="consent" role="region" aria-label="Cookie-Einstellungen" hidden>
+  <div class="consent-text">
+    <!-- Spruch wird per Script zufällig gewählt (consentLines); dies ist der Ersatz ohne JS -->
+    <p class="consent-line" id="consentLine">Die einzigen Kekse, die ich selbst mache, sind aus Öl auf Leinwand.</p>
+    <p>Darf ich mit Microsoft Clarity auswerten, wie diese Seite genutzt wird? Dafür werden Cookies
+       gesetzt und Besuche aufgezeichnet — Klicks, Scrollen, Mausbewegungen. Ohne deine Zustimmung
+       wird nichts davon geladen. Mehr in der <a href="#/datenschutz">Datenschutzerklärung</a>;
+       ändern kannst du deine Wahl jederzeit unten unter „Cookie-Einstellungen“.</p>
+  </div>
+  <div class="consent-actions">
+    <button type="button" class="consent-btn" data-consent="denied">Ablehnen</button>
+    <button type="button" class="consent-btn" data-consent="granted">Einverstanden</button>
+  </div>
+</div>
 
 <!-- Lightbox -->
 <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Werkansicht" hidden>
@@ -1267,7 +1586,9 @@
           werke: "Werke",
           ueber: "Über mich",
           projekte: "Soziale Projekte",
-          kontakt: "Kontakt"
+          kontakt: "Kontakt",
+          impressum: "Impressum",
+          datenschutz: "Datenschutz"
         }[name] || "");
 
     if (!isFirst) window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
@@ -1491,6 +1812,80 @@
       btn.addEventListener("mouseleave", function () { cursor.classList.remove("is-on"); });
     });
   }
+
+  /* ---------- Einwilligung ----------------------------------------------
+     Neue Besucher werden gefragt. Die Wahl liegt in localStorage (siehe
+     window.maxinoConsent im <head>); Clarity startet nur bei "granted". */
+
+  var consentBox = document.getElementById("consent");
+
+  // Beim Aufpoppen wird einer dieser Sätze gezeigt — beliebig erweiterbar.
+  var consentLines = [
+    "Die einzigen Kekse, die ich selbst mache, sind aus Öl auf Leinwand.",
+    "Ölfarbe braucht Wochen, um zu trocknen. Diese Frage nur einen Klick.",
+    "Ein Bild wird erst fertig, wenn jemand hinsieht. Darf ich sehen, wohin du schaust?",
+    "Jede Leinwand wird vor dem ersten Strich grundiert. Und jeder Cookie vorher erfragt."
+  ];
+
+  function openConsent(focusFirst) {
+    document.getElementById("consentLine").textContent =
+      consentLines[Math.floor(Math.random() * consentLines.length)];
+
+    consentBox.hidden = false;
+    void consentBox.offsetWidth;
+    consentBox.classList.add("is-open");
+    // Platz schaffen, damit die Leiste nichts Lesbares verdeckt
+    document.body.style.paddingBottom = consentBox.offsetHeight + "px";
+    if (focusFirst) consentBox.querySelector(".consent-btn").focus();
+  }
+
+  function closeConsent() {
+    consentBox.classList.remove("is-open");
+    document.body.style.paddingBottom = "";
+    window.setTimeout(function () { consentBox.hidden = true; }, reduced ? 0 : 500);
+  }
+
+  // Clarity-Cookies (_clck, _clsk) auf allen möglichen Domain-Ebenen entfernen
+  function removeClarityCookies() {
+    var host = location.hostname;
+    var domains = ["", host, "." + host, "." + host.split(".").slice(-2).join(".")];
+
+    document.cookie.split(";").forEach(function (c) {
+      var name = c.split("=")[0].trim();
+      if (name.indexOf("_cl") !== 0) return;
+      domains.forEach(function (d) {
+        document.cookie = name + "=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/" +
+          (d ? "; domain=" + d : "");
+      });
+    });
+  }
+
+  consentBox.addEventListener("click", function (e) {
+    var btn = e.target.closest ? e.target.closest("[data-consent]") : null;
+    if (!btn) return;
+
+    var before = window.maxinoConsent.get();
+    var choice = btn.dataset.consent;
+
+    window.maxinoConsent.set(choice);
+    closeConsent();
+
+    if (choice === "granted") {
+      window.maxinoConsent.loadClarity();
+      stats("set", "kapitel", routeName());
+    } else if (before === "granted") {
+      // Widerruf: Clarity läuft schon — Signal senden, Cookies löschen, neu laden
+      stats("consentv2", { ad_Storage: "denied", analytics_Storage: "denied" });
+      removeClarityCookies();
+      window.location.reload();
+    }
+  });
+
+  document.getElementById("consentOpen").addEventListener("click", function () {
+    openConsent(true);
+  });
+
+  if (!window.maxinoConsent.get()) openConsent(false);
 
   /* ---------- Start ---------- */
 
