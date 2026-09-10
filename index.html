@@ -6,6 +6,17 @@
 <title>Maxino — Ölmalerei aus München</title>
 <meta name="description" content="Maxino ist ein unabhängiger Künstler aus München. Ölmalerei zwischen Figur, Humor und gesellschaftlichem Bezug.">
 <link rel="preload" as="image" href="IMG_7324.JPG">
+
+<!-- Microsoft Clarity: Heatmaps und Sitzungsaufzeichnungen.
+     Auswertung unter clarity.microsoft.com, Projekt yg39ppuenz. -->
+<script type="text/javascript">
+    (function(c,l,a,r,i,t,y){
+        c[a]=c[a]||function(){(c[a].q=c[a].q||[]).push(arguments)};
+        t=l.createElement(r);t.async=1;t.src="https://www.clarity.ms/tag/"+i;
+        y=l.getElementsByTagName(r)[0];y.parentNode.insertBefore(t,y);
+    })(window, document, "clarity", "script", "yg39ppuenz");
+</script>
+
 <style>
   /* ============================================================
      MAXINO — digitale Galerie
@@ -1261,8 +1272,30 @@
 
     if (!isFirst) window.scrollTo({ top: 0, behavior: reduced ? "auto" : "smooth" });
 
+    stats("set", "kapitel", name);
+
     observeReveals();
   }
+
+  /* ---------- Statistik (Clarity) ---------------------------------------
+     Alle Kapitel liegen unter derselben Adresse; ohne das Tag "kapitel"
+     könnte Clarity Aufzeichnungen nicht nach Kapitel filtern.
+     Events markieren die Klicks, die für Anfragen zählen. */
+
+  function stats() {
+    if (typeof window.clarity === "function") {
+      window.clarity.apply(null, arguments);
+    }
+  }
+
+  document.addEventListener("click", function (e) {
+    var a = e.target.closest ? e.target.closest("a[href]") : null;
+    if (!a) return;
+
+    var href = a.getAttribute("href");
+    if (href.indexOf("mailto:") === 0) stats("event", "email_klick");
+    else if (href.indexOf("instagram.com") !== -1) stats("event", "instagram_klick");
+  });
 
   window.addEventListener("hashchange", function () { show(routeName(), false); });
 
@@ -1362,6 +1395,9 @@
     lbMeta.textContent = btn.dataset.meta || "";
     lbCount.textContent =
       String(current + 1).padStart(2, "0") + " / " + String(frames.length).padStart(2, "0");
+
+    // welches Werk angesehen wurde; Dateiname ist eindeutig, Titel oft "Ohne Titel"
+    stats("set", "werk", img.getAttribute("src"));
   }
 
   function openLb(i) {
@@ -1371,6 +1407,7 @@
     void lb.offsetWidth;
     lb.classList.add("is-open");
     document.body.style.overflow = "hidden";
+    stats("event", "werk_geoeffnet");
     load(i);
     document.getElementById("lbClose").focus();
   }
